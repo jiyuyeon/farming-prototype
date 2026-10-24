@@ -487,7 +487,7 @@ button { cursor: pointer; }
 .story-head > span:not(.demo) { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .story-head b { font-size: var(--t6); line-height: var(--l6); font-weight: 700; }
 .story-head > span > span { font-size: var(--t7); line-height: var(--l7); color: var(--fg2); }
-.story-head .x { flex: none; width: 44px; height: 44px; margin-right: -10px; border: 0; background: transparent; border-radius: 50%; display: grid; place-items: center; }
+.story-head .x { flex: none; width: 44px; height: 44px; margin-left: -10px; border: 0; background: transparent; border-radius: 50%; display: grid; place-items: center; }
 .story-head .x svg { width: 22px; height: 22px; }
 .story-body { flex: 1; display: flex; flex-direction: column; gap: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 4px 24px; cursor: pointer; -webkit-user-select: none; user-select: none; }
 .s-art { background: var(--bg); border-radius: var(--r-card); padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; cursor: auto; }
@@ -1277,7 +1277,7 @@ button { cursor: pointer; }
   }
 
   /* 할 일 이야기 카드(2026-10-24): 할 일을 누르면 파밍이가 인스타그램 스토리처럼 한 장에 한 가지씩 알려 줌. 내 숫자로 설명하고 퀴즈 한 장을 끼움.
-     저절로 넘기지 않음(읽는 속도가 사람마다 다르고 돈 이야기라서). 화면 오른쪽을 누르면 다음 장, 왼쪽을 누르면 이전 장. 마지막 장에서 할 일을 마침 */
+     저절로 넘기지 않음(읽는 속도가 사람마다 다르고 돈 이야기라서). 화면 오른쪽을 누르면 다음 장, 왼쪽을 누르면 이전 장. 퀴즈는 답을 골라야 넘어감(듀오링고, 임프린트). 마지막 장에서 할 일을 마침 */
   const STORY_OF = { product: 'move', isa: 'isa' };
   const taxBar = (kept, tax) => `<div class="s-bar" role="img" aria-label="이자 ${won(kept + tax)} 중 내가 받는 이자 ${won(kept)}, 세금 ${won(tax)}"><i class="keep" style="flex:${Math.round(kept)}"></i><i class="tax" style="flex:${Math.round(tax)}"></i></div>
     <ul class="s-legend"><li class="keep"><span>내가 받는 이자</span><b class="num">${won(kept)}</b></li><li class="tax"><span>세금</span><b class="num">${won(tax)}</b></li></ul>`;
@@ -1351,7 +1351,7 @@ button { cursor: pointer; }
       : c.art;
     return `<div class="story-top">
         <div class="sbars" role="progressbar" aria-label="이야기 카드" aria-valuemin="1" aria-valuemax="${n}" aria-valuenow="${i + 1}" aria-valuetext="${n}장 중 ${i + 1}장">${s.cards.map((_, k) => `<i class="${k < i ? 'on' : k === i ? 'on cur' : ''}"><b></b></i>`).join('')}</div>
-        <div class="story-head"><img src="assets/${z.img}_lv${z.thumb}.webp" alt=""><span><b>${z.name}</b><span>파밍이의 1분 설명</span></span>${s.demo ? '<span class="demo">상품과 금리는 예시</span>' : ''}<button class="x" data-act="back" aria-label="닫기">${ICON.close}</button></div>
+        <div class="story-head"><button class="x" data-act="back" aria-label="닫기">${ICON.close}</button><img src="assets/${z.img}_lv${z.thumb}.webp" alt=""><span><b>${z.name}</b><span>파밍이의 1분 설명</span></span>${s.demo ? '<span class="demo">상품과 금리는 예시</span>' : ''}</div>
       </div>
       <div class="story-body" data-tap>
         ${duo(`st-${state.screen}`, q && done ? (right ? 'moved' : 'sad') : c.face, c.title, q && done ? (right ? q.right : q.wrong) : c.sub, { react: q && done, lg: true })}
@@ -1359,11 +1359,12 @@ button { cursor: pointer; }
         ${c.note ? `<div class="note note-info" data-key="note-${i}" style="background:var(--bg)"><span>${c.note}</span></div>` : ''}
         ${c.fine ? `<p class="fine" data-key="fine-${i}">${c.fine}</p>` : ''}
       </div>
-      <div class="foot">${i === n - 1 ? s.end : `<button class="gbtn" data-act="story-next">다음</button>`}</div>`;
+      <div class="foot">${i === n - 1 ? s.end : q && !done ? '<button class="gbtn" disabled>답을 골라 주세요</button>' : '<button class="gbtn" data-act="story-next">다음</button>'}</div>`;
   }
   function storyMove(d) {
-    const i = state.si + d, n = storyOf(state.screen, state.p).cards.length;
+    const st = storyOf(state.screen, state.p), i = state.si + d, n = st.cards.length;
     if (i < 0 || i >= n) return;
+    if (d > 0 && st.cards[state.si].quiz && state.quiz[state.si] === undefined) { FX.hop(document.querySelector('#app .hero-pal')); return; }
     state.si = i; state.sv++;
     render();
     window.scrollTo(0, 0);
