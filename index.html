@@ -731,7 +731,7 @@ button { cursor: pointer; }
   const FIELDS = [
     { f: 'birth', name: '태어난 해', q: 'q1', show: p => p.birth ? `${p.birth}년` : '' },
     { f: 'income', name: '연봉 구간', q: 'q2', show: p => label(INCOME, p.income) },
-    { f: 'saved', name: '모아 둔 돈', q: 'q3', show: p => label(SAVED, p.saved) },
+    { f: 'saved', name: '꺼낼 수 있는 돈', q: 'q3', show: p => label(SAVED, p.saved) },
     { f: 'where', name: '지금 두는 곳', q: 'q3', show: p => label(WHERE, p.where) },
     { f: 'monthly', name: '매달 저축', q: 'q4', show: p => p.budget ? `${won(Math.max(0, plan(p, p.budget).save))}, 한 달 예산` : label(MONTHLY, p.monthly) },
     { f: 'when', name: '돈이 필요한 시기', q: 'q4', show: p => label(WHEN, p.when) },
@@ -741,7 +741,7 @@ button { cursor: pointer; }
     { f: 'doyakYear', name: '도약계좌 가입한 해', q: null, show: p => label(DOYAK_YEAR, p.doyakYear) },
     { f: 'doyakPaid', name: '도약계좌에 넣은 돈', q: null, show: p => label(DOYAK_PAID, p.doyakPaid) }
   ];
-  const Q_NAMES = { q1: '태어난 해', q2: '연봉 구간', q3: '모아 둔 돈과 두는 곳', q4: '매달 저축과 필요한 시기', q5: '가입한 정책 상품' };
+  const Q_NAMES = { q1: '태어난 해', q2: '연봉 구간', q3: '꺼낼 수 있는 돈과 두는 곳', q4: '매달 저축과 필요한 시기', q5: '가입한 정책 상품' };
 
   const fresh = () => ({ screen: 'start', stack: [], editField: null, bd: null, bdFrom: null, showLog: false, p: JSON.parse(JSON.stringify(EMPTY)), stamps: {}, log: [], done: [], sheet: null, sample: false, confirmWipe: false, seenNews: false, notify: false, cheer: null, poke: null, party: null, sub: { q3: 'a', q4: 'a' }, calcStep: 0, moreTasks: false, showDone: false, spend: [], showTx: false, bdEdit: false, scan: null, found: null, tends: [], grew: null, grewLedger: false, si: 0, sv: 0, quiz: {} });
   let state = fresh();
@@ -979,7 +979,7 @@ button { cursor: pointer; }
 
   /* 화면 */
   const SCREENS = [
-    ['start', '시작'], ['hello', '인사'], ['q1', '질문 1 태어난 해'], ['q2', '질문 2 연봉'], ['q3', '질문 3 모아 둔 돈'],
+    ['start', '시작'], ['hello', '인사'], ['q1', '질문 1 태어난 해'], ['q2', '질문 2 연봉'], ['q3', '질문 3 꺼낼 수 있는 돈'],
     ['q4', '질문 4 매달 저축'], ['q5', '질문 5 정책 상품'], ['calc', '계산 중'], ['result', '첫 결과'], ['home', '홈'],
     ['product', '할 일 이야기: 옮기기'], ['isa', '할 일 이야기: ISA'], ['news', '소식'], ['me', '내 정보'], ['ledger', '가계부'], ['budget-pay', '가계부 1 월급'], ['budget-fix', '가계부 2 고정 지출'], ['budget-live', '가계부 3 생활비 목표'], ['budget-alarm', '가계부 4 알림'], ['scan', '소비 내역 읽기'], ['scan-check', '읽은 내역 확인'], ['party', '연봉 축하']
   ];
@@ -1107,10 +1107,10 @@ button { cursor: pointer; }
   /* 두 갈래 질문: 첫 답을 고르면 파밍이가 같은 자리에서 다음 질문을 이어서 물음 */
   function viewQ3() {
     const p = state.p;
-    if (state.sub.q3 === 'a') return qShell(`${duo('q3', 'base', '지금 모아 둔 돈은 얼마예요?', '대략 골라 주세요. 정확하지 않아도 괜찮아요.')}
+    if (state.sub.q3 === 'a') return qShell(`${duo('q3', 'base', '지금 꺼낼 수 있는 돈은 얼마예요?', '입출금 통장, 예금, 적금에 있는 돈을 대략 골라 주세요. 청년도약계좌나 주택청약 같은 정책 상품에 넣은 돈은 꺼내면 혜택이 줄어서 빼 주세요.')}
       ${gopts('q3a', SAVED, k => p.saved === k, 'data-saved')}`, { act: 'sub-next', ready: !!p.saved, label: '다음' });
     return qShell(`${qDuo('q3', '그 돈은 지금 어디에 있어요?', '통장마다 이자가 달라서 여쭤봐요.')}
-      ${answered('q3', '모아 둔 돈', label(SAVED, p.saved))}
+      ${answered('q3', '꺼낼 수 있는 돈', label(SAVED, p.saved))}
       ${gopts('q3b', WHERE, k => p.where === k, 'data-where')}`, { ready: !!p.where, label: nextLabel(3) });
   }
   function viewQ4() {
@@ -1161,7 +1161,7 @@ button { cursor: pointer; }
     }).join('');
     return `${bar('내 결과', { back: true, demo: true })}
     <div class="content">
-      ${duo('result', gain > 1000 ? 'moved' : 'base', headline, gain > 1000 ? `${manwon(r.amt)} 기준, 세금 뗀 금액이에요.` : '더 나은 곳이 생기면 알려드릴게요.', { lg: true })}
+      ${duo('result', gain > 1000 ? 'moved' : 'base', headline, gain > 1000 ? `꺼낼 수 있는 돈 ${manwon(r.amt)}으로 계산한, 세금 뗀 금액이에요.` : '더 나은 곳이 생기면 알려드릴게요.', { lg: true })}
       <section class="card" aria-labelledby="h-rank">
         <div class="card-head"><h3 id="h-rank">받을 수 있는 이자</h3><span>${r.soon ? '꺼내기 쉬운 곳 먼저' : '많이 받는 순'}</span></div>
         <div class="tbl">
@@ -1170,7 +1170,7 @@ button { cursor: pointer; }
             <li class="now" data-key="now" data-flip><span class="n">지금</span><div class="main"><span class="name">지금 그대로</span></div><span class="won">${won(r.current)}</span><span class="cond">${r.where.label}</span></li>
           </ol>
         </div>
-        <div class="basis"><span>순서는 1년 동안 세금(15.4%)을 떼고 받는 이자로 정해요. 은행이 광고비를 내도 순서는 바뀌지 않아요.</span><span>모아 둔 돈은 고르신 구간 안의 금액으로 계산해요. 500만에서 1,000만 원을 고르셨으면 700만 원으로 계산해요.</span></div>
+        <div class="basis"><span>순서는 1년 동안 세금(15.4%)을 떼고 받는 이자로 정해요. 은행이 광고비를 내도 순서는 바뀌지 않아요.</span><span>꺼낼 수 있는 돈은 고르신 구간 안의 금액으로 계산해요. 500만에서 1,000만 원을 고르셨으면 700만 원으로 계산해요.</span><span>청년도약계좌처럼 정책 상품에 넣은 돈은 꺼내면 혜택이 줄어서, 파밍은 옮길 돈에 넣지 않아요.</span></div>
       </section>
       ${youthCard(p)}
       <section class="card" aria-labelledby="h-isa">
@@ -1179,7 +1179,7 @@ button { cursor: pointer; }
       </section>
       <p class="fine">상품명과 금리는 예시예요. 실제 버전은 금융감독원 공시 금리와 기준일을 함께 보여줘요.</p>
     </div>
-    <div class="foot"><p class="foot-hint">금리나 제도가 바뀌면 내 조건으로 다시 계산해 알려드려요.</p><button class="btn btn-primary" data-act="save-profile">저장하고 알림 받기</button></div>`;
+    <div class="foot"><p class="foot-hint">금리나 제도가 바뀌면 알려 주신 조건으로 다시 계산해 알려드려요.</p><button class="btn btn-primary" data-act="save-profile">저장하고 알림 받기</button></div>`;
   }
 
   function youthCard(p) {
